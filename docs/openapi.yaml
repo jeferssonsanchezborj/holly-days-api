@@ -1,0 +1,143 @@
+openapi: 3.0.3
+info:
+  title: Holidays API
+  description: >
+    Servicio REST desarrollado en Go (Gin) que expone los feriados chilenos
+    obtenidos desde https://api.boostr.cl/holidays.json. La información se
+    obtiene una única vez al iniciar la aplicación y se mantiene en memoria
+    (no se vuelve a invocar el servicio externo por cada request).
+  version: "1.0.0"
+  contact:
+    name: Equipo de Desarrollo
+servers:
+  - url: http://localhost:8080
+    description: Servidor local / Docker
+
+tags:
+  - name: Holidays
+    description: Operaciones sobre feriados
+
+paths:
+  /api/v1/holidays:
+    get:
+      tags: [Holidays]
+      summary: Lista feriados, con filtros opcionales por tipo y rango de fechas
+      description: >
+        Retorna la fecha, título, teléfono, tipo, inalienable y extra de cada
+        feriado que cumpla con los filtros entregados. Si no se envían
+        filtros, retorna todos los feriados disponibles.
+      parameters:
+        - name: type
+          in: query
+          required: false
+          description: Filtra por tipo de feriado (ej. "Civil", "Religioso"). No distingue mayúsculas/minúsculas.
+          schema:
+            type: string
+          example: Civil
+        - name: start_date
+          in: query
+          required: false
+          description: Fecha inicial del rango (inclusive), formato YYYY-MM-DD.
+          schema:
+            type: string
+            format: date
+          example: "2026-01-01"
+        - name: end_date
+          in: query
+          required: false
+          description: Fecha final del rango (inclusive), formato YYYY-MM-DD.
+          schema:
+            type: string
+            format: date
+          example: "2026-12-31"
+        - name: Accept
+          in: header
+          required: false
+          description: >
+            Controla el formato de la respuesta. Use "application/xml" para
+            recibir XML; cualquier otro valor (o su ausencia) retorna JSON.
+          schema:
+            type: string
+            enum: [application/json, application/xml]
+            default: application/json
+      responses:
+        "200":
+          description: Lista de feriados que cumplen el filtro.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HolidaysResponse'
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/HolidaysResponse'
+        "400":
+          description: Parámetros de filtro inválidos.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /health:
+    get:
+      tags: [Holidays]
+      summary: Health check
+      responses:
+        "200":
+          description: Servicio saludable.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: ok
+
+components:
+  schemas:
+    Holiday:
+      type: object
+      properties:
+        date:
+          type: string
+          format: date
+          example: "2026-01-01"
+        title:
+          type: string
+          example: "Año Nuevo"
+        phone:
+          type: string
+          description: >
+            Teléfono de contacto asociado al feriado. El servicio origen
+            (api.boostr.cl) no expone este dato actualmente, por lo que se
+            retorna como cadena vacía.
+          example: ""
+        type:
+          type: string
+          example: "Civil"
+        inalienable:
+          type: boolean
+          example: true
+        extra:
+          type: string
+          example: "Civil e Irrenunciable"
+    HolidaysResponse:
+      type: object
+      properties:
+        total:
+          type: integer
+          example: 16
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/Holiday'
+    ErrorResponse:
+      type: object
+      properties:
+        message:
+          type: string
+          example: "invalid value for 'start_date': 'abc', expected format YYYY-MM-DD"
+

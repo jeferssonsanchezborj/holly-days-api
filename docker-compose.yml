@@ -1,0 +1,17 @@
+version: "3.9"
+
+services:
+  holidays-api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: holidays-api:latest
+    container_name: holidays-api
+    ports:
+      - "8080:8080"
+    environment:
+      - PORT=8080
+      - LOG_LEVEL=info
+      - HOLIDAYS_UPSTREAM_URL=https://api.boostr.cl/holidays.json
+    restart: unless-stopped
+
