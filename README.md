@@ -126,10 +126,13 @@ inalienable y extra** por cada uno.
 Health check simple (`{"status":"ok"}`).
 
 ### `GET /docs`
-Swagger UI navegable, sirviendo `docs/openapi.yaml`.
+**Documentación interactiva Swagger UI**, alojada 100% localmente (sin
+dependencias de CDN externos) a partir de la especificación
+`docs/openapi.yaml`. Permite explorar y probar cada endpoint desde el
+navegador.
 
 ### `GET /openapi.yaml`
-Especificación OpenAPI 3.0.3 cruda.
+Especificación OpenAPI 3.0.3 cruda (formato YAML, consumida por la Swagger UI).
 
 ---
 
@@ -203,9 +206,12 @@ curl "http://localhost:8080/api/v1/holidays?start_date=not-a-date"
 ## 📚 Documentación OpenAPI
 
 La especificación completa está en [`docs/openapi.yaml`](docs/openapi.yaml)
-(OpenAPI 3.0.3). Puede visualizarse de forma interactiva accediendo a
-`http://localhost:8080/docs` una vez levantado el servicio, o importando el
-archivo directamente en [Swagger Editor](https://editor.swagger.io/).
+(OpenAPI 3.0.3). Puede visualizarse de forma **interactiva** (Swagger UI)
+accediendo a `http://localhost:8080/docs` una vez levantado el servicio.
+
+Los assets de Swagger UI (`docs/swagger-ui/`) están **vendorizados dentro
+del repositorio**, por lo que la documentación funciona 100% offline / sin
+salida a internet, tanto en local como dentro del contenedor Docker.
 
 ---
 
